@@ -86,6 +86,7 @@ export default function BookingPage() {
     const [cruise, setCruise] = useState(null)
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
+    const [showSuccessOverlay, setShowSuccessOverlay] = useState(false)
     const [bookingError, setBookingError] = useState('')
 
     // Step 1 – traveller counts
@@ -99,8 +100,7 @@ export default function BookingPage() {
     const [availableServices, setAvailableServices] = useState([])
     const [selectedServices, setSelectedServices] = useState([])
 
-    // Step 4 – promo & email
-    const [emailInput, setEmailInput] = useState('')
+    // Step 4 – promo
     const [promoInput, setPromoInput] = useState('')
     const [promoCode, setPromoCode] = useState('')
     const [promoStatus, setPromoStatus] = useState(null) // { valid, message }
@@ -163,14 +163,10 @@ export default function BookingPage() {
     // ── Validate promo ───────────────────────────────────────────────────
     const handleValidatePromo = async () => {
         if (!promoInput.trim()) return
-        if (!emailInput.trim()) {
-            setPromoStatus({ valid: false, message: 'Please provide an email address first to validate promos.' })
-            return
-        }
         setPromoLoading(true)
         setPromoStatus(null)
         try {
-            const r = await validatePromo({ ...buildPayload(), promoCode: promoInput.trim().toUpperCase(), email: emailInput.trim() })
+            const r = await validatePromo({ ...buildPayload(), promoCode: promoInput.trim().toUpperCase() })
             const d = r.data
             setPromoCode(promoInput.trim().toUpperCase())
             setPromoStatus({ valid: true, message: `✓ ${d.message || 'Promo applied!'}` })
@@ -190,11 +186,13 @@ export default function BookingPage() {
         try {
             const payload = {
                 ...buildPayload(),
-                leadPassenger: { firstName: 'Guest', lastName: 'Booking', email: emailInput.trim() || 'guest@odysseuscruises.com' },
+                leadPassenger: { firstName: 'Guest', lastName: 'Booking', email: 'guest@odysseuscruises.com' },
             }
             const r = await createBooking(payload)
-            const booking = r.data.data || r.data
-            navigate(`/confirmation/${booking.id}`, { state: { booking, cruise } })
+            setShowSuccessOverlay(true)
+            setTimeout(() => {
+                navigate('/')
+            }, 2500)
         } catch (err) {
             setBookingError(err?.response?.data?.message || 'Booking failed. Please try again.')
         } finally {
@@ -451,31 +449,22 @@ export default function BookingPage() {
                                 Review & Pay
                             </h2>
 
-                            {/* Email Details */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                    Lead Passenger Email (Required)
-                                </label>
-                                <input type="email" placeholder="e.g. hello@example.com"
-                                    value={emailInput}
-                                    onChange={e => setEmailInput(e.target.value)}
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                />
-                            </div>
-
                             {/* Promo code */}
-                            <div className="pt-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-0.5">
                                     Promotional code (optional)
                                 </label>
+                                <p className="text-xs text-gray-400 mb-2">
+                                    Hint: Try <strong>SUMMER20</strong> (20% off) or <strong>SAVE100</strong> (£100 off)
+                                </p>
                                 <div className="flex gap-2">
                                     <input type="text" placeholder="e.g. SUMMER25"
                                         value={promoInput}
-                                        onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoStatus(null) }}
+                                        onChange={e => { setPromoInput(e.target.value); setPromoStatus(null) }}
                                         onKeyDown={e => e.key === 'Enter' && handleValidatePromo()}
                                         className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-400"
                                     />
-                                    <button onClick={handleValidatePromo} disabled={promoLoading || !promoInput.trim() || !emailInput.trim()}
+                                    <button onClick={handleValidatePromo} disabled={promoLoading || !promoInput.trim()}
                                         className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
                                         style={{ background: 'var(--ocean-700)' }}>
                                         {promoLoading ? <Loader2 size={14} className="animate-spin" /> : 'Apply'}
@@ -546,7 +535,7 @@ export default function BookingPage() {
                                 style={{ borderColor: 'var(--ocean-300)', color: 'var(--ocean-700)' }}>
                                 <ChevronLeft size={16} /> Back
                             </button>
-                            <button onClick={handleConfirm} disabled={submitting || !breakdown || !emailInput.trim()}
+                            <button onClick={handleConfirm} disabled={submitting || !breakdown}
                                 className="flex-1 py-3.5 rounded-xl text-white font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.01] disabled:opacity-50"
                                 style={{ background: 'linear-gradient(135deg, var(--gold-500), var(--gold-400))', color: 'var(--ocean-900)' }}>
                                 {submitting ? <><Loader2 size={16} className="animate-spin" />Processing…</> : <>Confirm Booking ✓</>}
@@ -559,6 +548,20 @@ export default function BookingPage() {
                     </div>
                 )}
             </div>
+
+            {/* Success Overlay Animation */}
+            {showSuccessOverlay && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/80 backdrop-blur-sm">
+                    <div className="bg-white px-10 py-10 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-auto"
+                        style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5 bg-green-500 shadow-[0_10px_20px_rgba(34,197,94,0.3)]">
+                            <CheckCircle size={40} className="text-white" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center tracking-tight">Booking Confirmed!</h2>
+                        <p className="text-gray-500 text-sm text-center">Letting the captain know... Redirecting to home.</p>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

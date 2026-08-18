@@ -15,6 +15,7 @@ export default function PriceBreakdown({ breakdown, compact = false }) {
         subtotal,
         discount,          // Promo code discount object
         groupDiscount,     // Group discount object
+        tax,
         grandTotal,
         currency = 'GBP',
     } = breakdown
@@ -113,6 +114,12 @@ export default function PriceBreakdown({ breakdown, compact = false }) {
                             <Percent size={13} /> Promo ({discount.code})
                         </span>
                         <span>{fmt(discount.amount)}</span>
+                    </div>
+                )}
+                {tax > 0 && (
+                    <div className="flex justify-between text-gray-500 font-medium">
+                        <span>Taxes & Fees (12%)</span>
+                        <span>{fmt(tax)}</span>
                     </div>
                 )}
                 <div className="flex justify-between text-lg font-bold pt-2"
