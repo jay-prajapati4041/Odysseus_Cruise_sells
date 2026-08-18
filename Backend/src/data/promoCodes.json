@@ -1,0 +1,70 @@
+[
+    {
+        "code": "SUMMER20",
+        "description": "20% off summer cruises",
+        "type": "percent",
+        "value": 20,
+        "expiresAt": "2026-09-01",
+        "maxUses": 100,
+        "usedCount": 0,
+        "applicableCruiseIds": [
+            "cruise-001",
+            "cruise-002",
+            "cruise-003"
+        ]
+    },
+    {
+        "code": "SAVE100",
+        "description": "£100 off any cruise",
+        "type": "fixed",
+        "value": 100,
+        "expiresAt": "2026-12-31",
+        "maxUses": 500,
+        "usedCount": 0,
+        "applicableCruiseIds": null
+    },
+    {
+        "code": "EXPIRED50",
+        "description": "50% off – expired promotion",
+        "type": "percent",
+        "value": 50,
+        "expiresAt": "2025-01-01",
+        "maxUses": 1000,
+        "usedCount": 0,
+        "applicableCruiseIds": null
+    },
+    {
+        "code": "USED999",
+        "description": "£999 off – fully exhausted",
+        "type": "fixed",
+        "value": 999,
+        "expiresAt": "2026-12-31",
+        "maxUses": 50,
+        "usedCount": 50,
+        "applicableCruiseIds": null
+    },
+    {
+        "code": "GULF25",
+        "description": "25% off Arabian Gulf cruise only",
+        "type": "percent",
+        "value": 25,
+        "expiresAt": "2026-11-01",
+        "maxUses": 30,
+        "usedCount": 5,
+        "applicableCruiseIds": [
+            "cruise-005"
+        ]
+    },
+    {
+        "code": "ARCTIC10",
+        "description": "£10 off Alaska voyage",
+        "type": "fixed",
+        "value": 10,
+        "expiresAt": "2026-09-30",
+        "maxUses": 20,
+        "usedCount": 0,
+        "applicableCruiseIds": [
+            "cruise-004"
+        ]
+    }
+]

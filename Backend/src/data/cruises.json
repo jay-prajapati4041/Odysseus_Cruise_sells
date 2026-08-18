@@ -1,0 +1,220 @@
+[
+    {
+        "id": "cruise-001",
+        "name": "Mediterranean Splendour",
+        "destination": "Barcelona, Rome, Athens, Santorini",
+        "departurePort": "Southampton, UK",
+        "departureDate": "2026-05-10",
+        "returnDate": "2026-05-24",
+        "durationNights": 14,
+        "ship": "Odysseus Empress",
+        "baseAdultPrice": 1499,
+        "baseChildPrice": 799,
+        "availability": 120,
+        "description": "Explore the heart of the Mediterranean across iconic ports.",
+        "availableServices": [
+            {
+                "id": "svc-drinks",
+                "name": "All-Inclusive Drinks Package",
+                "price": 149,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-excursion-med",
+                "name": "Shore Excursion Bundle (3 ports)",
+                "price": 199,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-insurance",
+                "name": "Travel Insurance",
+                "price": 49,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-spa",
+                "name": "Spa Day Pass",
+                "price": 89,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-transfer",
+                "name": "Airport Transfer (return)",
+                "price": 75,
+                "pricingType": "per_booking"
+            }
+        ]
+    },
+    {
+        "id": "cruise-002",
+        "name": "Norwegian Fjords Adventure",
+        "destination": "Bergen, Flam, Geiranger, Stavanger",
+        "departurePort": "Newcastle, UK",
+        "departureDate": "2026-06-15",
+        "returnDate": "2026-06-22",
+        "durationNights": 7,
+        "ship": "Odysseus Explorer",
+        "baseAdultPrice": 899,
+        "baseChildPrice": 499,
+        "availability": 80,
+        "description": "Dramatic scenery through Norway's most spectacular fjords.",
+        "availableServices": [
+            {
+                "id": "svc-drinks",
+                "name": "All-Inclusive Drinks Package",
+                "price": 149,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-excursion-fjord",
+                "name": "Fjord Kayaking Experience",
+                "price": 129,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-insurance",
+                "name": "Travel Insurance",
+                "price": 49,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-transfer",
+                "name": "Airport Transfer (return)",
+                "price": 75,
+                "pricingType": "per_booking"
+            }
+        ]
+    },
+    {
+        "id": "cruise-003",
+        "name": "Caribbean Paradise",
+        "destination": "Barbados, St Lucia, Grenada, Trinidad",
+        "departurePort": "Barbados (fly-cruise)",
+        "departureDate": "2026-07-05",
+        "returnDate": "2026-07-19",
+        "durationNights": 14,
+        "ship": "Odysseus Horizon",
+        "baseAdultPrice": 2199,
+        "baseChildPrice": 1099,
+        "availability": 60,
+        "description": "Sun, sea and stunning Caribbean islands await you.",
+        "availableServices": [
+            {
+                "id": "svc-drinks",
+                "name": "All-Inclusive Drinks Package",
+                "price": 149,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-snorkel",
+                "name": "Snorkelling & Reef Tour",
+                "price": 99,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-insurance",
+                "name": "Travel Insurance",
+                "price": 49,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-spa",
+                "name": "Spa Day Pass",
+                "price": 89,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-transfer",
+                "name": "Airport Transfer (return)",
+                "price": 75,
+                "pricingType": "per_booking"
+            }
+        ]
+    },
+    {
+        "id": "cruise-004",
+        "name": "Alaska Wilderness Voyage",
+        "destination": "Juneau, Ketchikan, Skagway, Glacier Bay",
+        "departurePort": "Seattle, USA",
+        "departureDate": "2026-08-20",
+        "returnDate": "2026-08-27",
+        "durationNights": 7,
+        "ship": "Odysseus Pioneer",
+        "baseAdultPrice": 1199,
+        "baseChildPrice": 649,
+        "availability": 45,
+        "description": "Witness glaciers, wildlife and unspoiled Alaskan wilderness.",
+        "availableServices": [
+            {
+                "id": "svc-drinks",
+                "name": "All-Inclusive Drinks Package",
+                "price": 149,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-wildlife",
+                "name": "Wildlife Watching Guided Tour",
+                "price": 159,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-insurance",
+                "name": "Travel Insurance",
+                "price": 49,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-transfer",
+                "name": "Airport Transfer (return)",
+                "price": 75,
+                "pricingType": "per_booking"
+            }
+        ]
+    },
+    {
+        "id": "cruise-005",
+        "name": "Arabian Gulf Discovery",
+        "destination": "Dubai, Abu Dhabi, Muscat, Doha",
+        "departurePort": "Dubai, UAE",
+        "departureDate": "2026-10-12",
+        "returnDate": "2026-10-19",
+        "durationNights": 7,
+        "ship": "Odysseus Mirage",
+        "baseAdultPrice": 999,
+        "baseChildPrice": 549,
+        "availability": 100,
+        "description": "Luxury and culture blended across the stunning Arabian Gulf.",
+        "availableServices": [
+            {
+                "id": "svc-drinks",
+                "name": "All-Inclusive Drinks Package",
+                "price": 149,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-desert",
+                "name": "Desert Safari Experience",
+                "price": 175,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-insurance",
+                "name": "Travel Insurance",
+                "price": 49,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-spa",
+                "name": "Spa Day Pass",
+                "price": 89,
+                "pricingType": "per_person"
+            },
+            {
+                "id": "svc-transfer",
+                "name": "Airport Transfer (return)",
+                "price": 75,
+                "pricingType": "per_booking"
+            }
+        ]
+    }
+]
