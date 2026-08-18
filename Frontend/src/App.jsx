@@ -4,6 +4,8 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
 import CruisesPage from './pages/CruisesPage'
+import BookingPage from './pages/BookingPage'
+import ConfirmationPage from './pages/ConfirmationPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 
@@ -22,6 +24,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/cruises" element={<CruisesPage />} />
+          <Route path="/book/:cruiseId" element={<BookingPage />} />
+          <Route path="/confirmation/:bookingId" element={<ConfirmationPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
         </Routes>
