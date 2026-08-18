@@ -176,7 +176,11 @@ function calculatePrice({ cruiseId, adults, children = [], serviceIds = [], prom
         }
     }
 
-    breakdown.grandTotal = Math.max(0, subtotal - groupDiscountAmount - discountAmount);
+    const preTaxTotal = Math.max(0, subtotal - groupDiscountAmount - discountAmount);
+    const tax = Math.round((preTaxTotal * 0.12) * 100) / 100;
+
+    breakdown.tax = tax;
+    breakdown.grandTotal = Math.round((preTaxTotal + tax) * 100) / 100;
 
     return breakdown;
 }

@@ -8,18 +8,20 @@ const ADULT = 1499;
 const CHILD_5_11 = Math.round(ADULT * 0.5 * 100) / 100;   // 749.50
 const CHILD_12_17 = Math.round(ADULT * 0.75 * 100) / 100; // 1124.25
 
+const withTax = (val) => Math.round((Math.max(0, val) * 1.12) * 100) / 100;
+
 describe('Pricing Engine – calculatePrice()', () => {
 
     // ── Adults ────────────────────────────────────────────────────────────────
     describe('Adults', () => {
         test('1 adult → full base fare', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [], serviceIds: [] });
-            expect(result.grandTotal).toBe(ADULT);
+            expect(result.grandTotal).toBe(withTax(ADULT));
         });
 
         test('2 adults → 2 × baseAdultPrice', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 2, children: [], serviceIds: [] });
-            expect(result.grandTotal).toBe(ADULT * 2);
+            expect(result.grandTotal).toBe(withTax(ADULT * 2));
         });
 
         test('Adult passenger line appears in breakdown', () => {
@@ -38,21 +40,21 @@ describe('Pricing Engine – calculatePrice()', () => {
             const line = result.passengers.find((p) => p.type.includes('Age 0'));
             expect(line.unitPrice).toBe(0);
             expect(line.lineTotal).toBe(0);
-            expect(result.grandTotal).toBe(ADULT);
+            expect(result.grandTotal).toBe(withTax(ADULT));
         });
 
         test('Age 3 → FREE', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [{ age: 3 }], serviceIds: [] });
             const line = result.passengers.find((p) => p.type.includes('Age 3'));
             expect(line.unitPrice).toBe(0);
-            expect(result.grandTotal).toBe(ADULT);
+            expect(result.grandTotal).toBe(withTax(ADULT));
         });
 
         test('Age 4 → FREE (boundary upper)', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [{ age: 4 }], serviceIds: [] });
             const line = result.passengers.find((p) => p.type.includes('Age 4'));
             expect(line.unitPrice).toBe(0);
-            expect(result.grandTotal).toBe(ADULT);
+            expect(result.grandTotal).toBe(withTax(ADULT));
         });
 
         // ── 5–11 → 50% of adult fare ──────────────────────────────────────────
@@ -60,7 +62,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [{ age: 5 }], serviceIds: [] });
             const line = result.passengers.find((p) => p.type.includes('Age 5'));
             expect(line.unitPrice).toBe(CHILD_5_11);
-            expect(result.grandTotal).toBe(ADULT + CHILD_5_11);
+            expect(result.grandTotal).toBe(withTax(ADULT + CHILD_5_11));
         });
 
         test('Age 8 → 50% of adult fare', () => {
@@ -73,7 +75,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [{ age: 11 }], serviceIds: [] });
             const line = result.passengers.find((p) => p.type.includes('Age 11'));
             expect(line.unitPrice).toBe(CHILD_5_11);
-            expect(result.grandTotal).toBe(ADULT + CHILD_5_11);
+            expect(result.grandTotal).toBe(withTax(ADULT + CHILD_5_11));
         });
 
         // ── 12–17 → 75% of adult fare ─────────────────────────────────────────
@@ -81,7 +83,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [{ age: 12 }], serviceIds: [] });
             const line = result.passengers.find((p) => p.type.includes('Age 12'));
             expect(line.unitPrice).toBe(CHILD_12_17);
-            expect(result.grandTotal).toBe(ADULT + CHILD_12_17);
+            expect(result.grandTotal).toBe(withTax(ADULT + CHILD_12_17));
         });
 
         test('Age 15 → 75% of adult fare', () => {
@@ -94,7 +96,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [{ age: 17 }], serviceIds: [] });
             const line = result.passengers.find((p) => p.type.includes('Age 17'));
             expect(line.unitPrice).toBe(CHILD_12_17);
-            expect(result.grandTotal).toBe(ADULT + CHILD_12_17);
+            expect(result.grandTotal).toBe(withTax(ADULT + CHILD_12_17));
         });
 
         // ── 18+ → full adult fare ─────────────────────────────────────────────
@@ -102,7 +104,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [{ age: 18 }], serviceIds: [] });
             const line = result.passengers.find((p) => p.type.includes('Age 18'));
             expect(line.unitPrice).toBe(ADULT);
-            expect(result.grandTotal).toBe(ADULT + ADULT);
+            expect(result.grandTotal).toBe(withTax(ADULT + ADULT));
         });
 
         // ── Mixed party ───────────────────────────────────────────────────────
@@ -115,7 +117,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             });
             const expectedPaxTotal = ADULT * 2 + 0 + CHILD_5_11 + CHILD_12_17; // 4871.75
             const expectedDiscount = Math.round(expectedPaxTotal * 0.10 * 100) / 100; // 487.18
-            expect(result.grandTotal).toBeCloseTo(expectedPaxTotal - expectedDiscount, 2);
+            expect(result.grandTotal).toBe(withTax(expectedPaxTotal - expectedDiscount));
         });
     });
 
@@ -155,7 +157,7 @@ describe('Pricing Engine – calculatePrice()', () => {
                 children: [],
                 serviceIds: ['svc-insurance', 'svc-wifi'],
             });
-            expect(result.grandTotal).toBe(ADULT * 2 + 160 + 420);
+            expect(result.grandTotal).toBe(withTax(ADULT * 2 + 160 + 420));
         });
 
         test('Unknown service ID silently ignored', () => {
@@ -166,7 +168,7 @@ describe('Pricing Engine – calculatePrice()', () => {
                 serviceIds: ['svc-nonexistent'],
             });
             expect(result.services).toHaveLength(0);
-            expect(result.grandTotal).toBe(ADULT);
+            expect(result.grandTotal).toBe(withTax(ADULT));
         });
     });
 
@@ -180,7 +182,7 @@ describe('Pricing Engine – calculatePrice()', () => {
                 cruiseId: 'cruise-001', adults: 2, children: [], serviceIds: [], promoCode: percentPromo,
             });
             expect(result.discount.amount).toBeCloseTo(-(ADULT * 2 * 0.2), 2);
-            expect(result.grandTotal).toBeCloseTo(ADULT * 2 * 0.8, 2);
+            expect(result.grandTotal).toBe(withTax(ADULT * 2 * 0.8));
         });
 
         test('Fixed £100 promo on 1 adult', () => {
@@ -188,7 +190,7 @@ describe('Pricing Engine – calculatePrice()', () => {
                 cruiseId: 'cruise-001', adults: 1, children: [], serviceIds: [], promoCode: fixedPromo,
             });
             expect(result.discount.amount).toBe(-100);
-            expect(result.grandTotal).toBe(ADULT - 100);
+            expect(result.grandTotal).toBe(withTax(ADULT - 100));
         });
 
         test('Fixed promo larger than total → grandTotal is 0', () => {
@@ -196,7 +198,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             const result = calculatePrice({
                 cruiseId: 'cruise-001', adults: 1, children: [], serviceIds: [], promoCode: bigPromo,
             });
-            expect(result.grandTotal).toBe(0);
+            expect(result.grandTotal).toBe(withTax(0));
         });
 
         test('No promo → discount is null', () => {
@@ -219,7 +221,7 @@ describe('Pricing Engine – calculatePrice()', () => {
             expect(result.groupDiscount.pct).toBe(5);
             expect(result.groupDiscount.amount).toBeCloseTo(-(ADULT * 3 * 0.05), 2);
             expect(result.subtotal).toBe(ADULT * 3);
-            expect(result.grandTotal).toBeCloseTo(ADULT * 3 * 0.95, 2);
+            expect(result.grandTotal).toBe(withTax(ADULT * 3 * 0.95));
         });
 
         test('5-6 passengers → 10% group discount on passenger total', () => {
