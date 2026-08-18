@@ -13,23 +13,23 @@ export default function PriceBreakdown({ breakdown, compact = false }) {
         passengers = [],
         services = [],
         subtotal,
-        promoDiscount,
-        total,
-        promoCode,
+        discount,          // Promo code discount object
+        groupDiscount,     // Group discount object
+        grandTotal,
         currency = 'GBP',
     } = breakdown
 
     const fmt = (n) =>
         new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(n)
 
-    const ageBandLabel = (band) => {
-        const map = {
-            infant: { label: 'Infant (0–4)', emoji: '🍼', pct: '0%' },
-            child: { label: 'Child (5–11)', emoji: '👧', pct: '50%' },
-            teen: { label: 'Teen (12–17)', emoji: '🧑', pct: '75%' },
-            adult: { label: 'Adult (18+)', emoji: '🧑‍💼', pct: '100%' },
-        }
-        return map[band] || { label: band, emoji: '👤', pct: '—' }
+    const getEmoji = (typeString) => {
+        if (!typeString) return '👤';
+        const t = typeString.toLowerCase();
+        if (t.includes('infant') || t.includes('0–4')) return '🍼';
+        if (t.includes('child') || t.includes('5–11')) return '👧';
+        if (t.includes('teen') || t.includes('12–17')) return '🧑';
+        if (t.includes('adult')) return '🧑‍💼';
+        return '👤';
     }
 
     return (
@@ -49,27 +49,24 @@ export default function PriceBreakdown({ breakdown, compact = false }) {
                         style={{ color: 'var(--ocean-600)', borderBottom: '1px solid #e5e7eb' }}>
                         <Users size={12} className="inline mr-1.5" />Passengers
                     </div>
-                    {passengers.map((p, i) => {
-                        const band = ageBandLabel(p.band)
-                        return (
-                            <div key={i}
-                                className="flex items-center justify-between px-5 py-3"
-                                style={{ borderBottom: '1px solid #f3f4f6' }}>
-                                <div className="flex items-center gap-2">
-                                    <span>{band.emoji}</span>
-                                    <div>
-                                        <p className="font-medium text-gray-800">{band.label}</p>
-                                        {p.age !== undefined && (
-                                            <p className="text-xs text-gray-400">Age {p.age} · {band.pct} of adult fare</p>
-                                        )}
-                                    </div>
+                    {passengers.map((p, i) => (
+                        <div key={i}
+                            className="flex items-center justify-between px-5 py-3"
+                            style={{ borderBottom: '1px solid #f3f4f6' }}>
+                            <div className="flex items-center gap-2">
+                                <span>{getEmoji(p.type)}</span>
+                                <div>
+                                    <p className="font-medium text-gray-800">{p.type}</p>
+                                    {p.count > 1 && (
+                                        <p className="text-xs text-gray-400">{p.count} × {fmt(p.unitPrice)}</p>
+                                    )}
                                 </div>
-                                <span className={`font-semibold ${p.fare === 0 ? 'text-green-600' : 'text-gray-800'}`}>
-                                    {p.fare === 0 ? 'FREE' : fmt(p.fare)}
-                                </span>
                             </div>
-                        )
-                    })}
+                            <span className={`font-semibold ${p.lineTotal === 0 ? 'text-green-600' : 'text-gray-800'}`}>
+                                {p.lineTotal === 0 ? 'FREE' : fmt(p.lineTotal)}
+                            </span>
+                        </div>
+                    ))}
                 </div>
             )}
 
@@ -87,10 +84,10 @@ export default function PriceBreakdown({ breakdown, compact = false }) {
                             <div>
                                 <p className="font-medium text-gray-800">{s.name}</p>
                                 <p className="text-xs text-gray-400">
-                                    {s.type === 'per_person' ? 'Per person' : 'Per booking'}
+                                    {s.pricingNote}
                                 </p>
                             </div>
-                            <span className="font-semibold text-gray-800">{fmt(s.total)}</span>
+                            <span className="font-semibold text-gray-800">{fmt(s.lineTotal)}</span>
                         </div>
                     ))}
                 </div>
@@ -102,18 +99,26 @@ export default function PriceBreakdown({ breakdown, compact = false }) {
                     <span>Subtotal</span>
                     <span>{fmt(subtotal)}</span>
                 </div>
-                {promoDiscount > 0 && (
+                {groupDiscount && (
                     <div className="flex justify-between text-green-600 font-medium">
                         <span className="flex items-center gap-1">
-                            <Percent size={13} /> Promo ({promoCode})
+                            <Tag size={13} /> {groupDiscount.description}
                         </span>
-                        <span>− {fmt(promoDiscount)}</span>
+                        <span>{fmt(groupDiscount.amount)}</span>
+                    </div>
+                )}
+                {discount && (
+                    <div className="flex justify-between text-green-600 font-medium">
+                        <span className="flex items-center gap-1">
+                            <Percent size={13} /> Promo ({discount.code})
+                        </span>
+                        <span>{fmt(discount.amount)}</span>
                     </div>
                 )}
                 <div className="flex justify-between text-lg font-bold pt-2"
                     style={{ borderTop: '1px solid #e5e7eb', color: 'var(--ocean-900)' }}>
                     <span>Total</span>
-                    <span>{fmt(total)}</span>
+                    <span>{fmt(grandTotal)}</span>
                 </div>
             </div>
         </div>

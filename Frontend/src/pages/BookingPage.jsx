@@ -99,7 +99,8 @@ export default function BookingPage() {
     const [availableServices, setAvailableServices] = useState([])
     const [selectedServices, setSelectedServices] = useState([])
 
-    // Step 4 – promo
+    // Step 4 – promo & email
+    const [emailInput, setEmailInput] = useState('')
     const [promoInput, setPromoInput] = useState('')
     const [promoCode, setPromoCode] = useState('')
     const [promoStatus, setPromoStatus] = useState(null) // { valid, message }
@@ -162,10 +163,14 @@ export default function BookingPage() {
     // ── Validate promo ───────────────────────────────────────────────────
     const handleValidatePromo = async () => {
         if (!promoInput.trim()) return
+        if (!emailInput.trim()) {
+            setPromoStatus({ valid: false, message: 'Please provide an email address first to validate promos.' })
+            return
+        }
         setPromoLoading(true)
         setPromoStatus(null)
         try {
-            const r = await validatePromo({ promoCode: promoInput.trim().toUpperCase(), cruiseId })
+            const r = await validatePromo({ ...buildPayload(), promoCode: promoInput.trim().toUpperCase(), email: emailInput.trim() })
             const d = r.data
             setPromoCode(promoInput.trim().toUpperCase())
             setPromoStatus({ valid: true, message: `✓ ${d.message || 'Promo applied!'}` })
@@ -185,7 +190,7 @@ export default function BookingPage() {
         try {
             const payload = {
                 ...buildPayload(),
-                leadPassenger: { firstName: 'Guest', lastName: 'Booking', email: 'guest@odysseuscruises.com' },
+                leadPassenger: { firstName: 'Guest', lastName: 'Booking', email: emailInput.trim() || 'guest@odysseuscruises.com' },
             }
             const r = await createBooking(payload)
             const booking = r.data.data || r.data
@@ -410,7 +415,7 @@ export default function BookingPage() {
                                                 <p className="font-semibold text-gray-800">{svc.name}</p>
                                                 <p className="text-xs text-gray-400 mt-0.5">{svc.description}</p>
                                                 <p className="text-xs mt-1 font-medium" style={{ color: 'var(--ocean-600)' }}>
-                                                    £{svc.price} · {svc.type === 'per_person' ? 'per person' : 'per booking'}
+                                                    £{svc.price} · {svc.pricingType === 'per_person' ? 'per person' : svc.pricingType === 'per_person_per_night' ? 'per person, per night' : 'per booking'}
                                                 </p>
                                             </div>
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ml-4 transition-all ${selected ? 'text-white' : 'border-gray-300'
@@ -446,8 +451,20 @@ export default function BookingPage() {
                                 Review & Pay
                             </h2>
 
-                            {/* Promo code */}
+                            {/* Email Details */}
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                    Lead Passenger Email (Required)
+                                </label>
+                                <input type="email" placeholder="e.g. hello@example.com"
+                                    value={emailInput}
+                                    onChange={e => setEmailInput(e.target.value)}
+                                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
+                            </div>
+
+                            {/* Promo code */}
+                            <div className="pt-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                                     Promotional code (optional)
                                 </label>
@@ -458,7 +475,7 @@ export default function BookingPage() {
                                         onKeyDown={e => e.key === 'Enter' && handleValidatePromo()}
                                         className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-400"
                                     />
-                                    <button onClick={handleValidatePromo} disabled={promoLoading || !promoInput.trim()}
+                                    <button onClick={handleValidatePromo} disabled={promoLoading || !promoInput.trim() || !emailInput.trim()}
                                         className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
                                         style={{ background: 'var(--ocean-700)' }}>
                                         {promoLoading ? <Loader2 size={14} className="animate-spin" /> : 'Apply'}
@@ -505,9 +522,14 @@ export default function BookingPage() {
                                     <p className="font-display text-3xl font-bold text-white">
                                         {new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(breakdown.grandTotal ?? breakdown.total ?? 0)}
                                     </p>
-                                    {breakdown.promoDiscount > 0 && (
+                                    {breakdown.groupDiscount && (
+                                        <p className="text-green-400 text-xs mt-1">
+                                            Includes group saving of {new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(Math.abs(breakdown.groupDiscount.amount))}
+                                        </p>
+                                    )}
+                                    {breakdown.discount && (
                                         <p className="text-green-400 text-xs mt-0.5">
-                                            Includes promo saving of {new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(breakdown.promoDiscount)}
+                                            Includes promo saving of {new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(Math.abs(breakdown.discount.amount))}
                                         </p>
                                     )}
                                 </div>
@@ -524,7 +546,7 @@ export default function BookingPage() {
                                 style={{ borderColor: 'var(--ocean-300)', color: 'var(--ocean-700)' }}>
                                 <ChevronLeft size={16} /> Back
                             </button>
-                            <button onClick={handleConfirm} disabled={submitting || !breakdown}
+                            <button onClick={handleConfirm} disabled={submitting || !breakdown || !emailInput.trim()}
                                 className="flex-1 py-3.5 rounded-xl text-white font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.01] disabled:opacity-50"
                                 style={{ background: 'linear-gradient(135deg, var(--gold-500), var(--gold-400))', color: 'var(--ocean-900)' }}>
                                 {submitting ? <><Loader2 size={16} className="animate-spin" />Processing…</> : <>Confirm Booking ✓</>}
