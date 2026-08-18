@@ -14,34 +14,22 @@
         "description": "Explore the heart of the Mediterranean across iconic ports.",
         "availableServices": [
             {
-                "id": "svc-drinks",
-                "name": "All-Inclusive Drinks Package",
-                "price": 149,
-                "pricingType": "per_person"
-            },
-            {
-                "id": "svc-excursion-med",
-                "name": "Shore Excursion Bundle (3 ports)",
-                "price": 199,
-                "pricingType": "per_person"
-            },
-            {
                 "id": "svc-insurance",
                 "name": "Travel Insurance",
-                "price": 49,
+                "price": 80,
                 "pricingType": "per_person"
             },
             {
-                "id": "svc-spa",
-                "name": "Spa Day Pass",
-                "price": 89,
-                "pricingType": "per_person"
+                "id": "svc-wifi",
+                "name": "WiFi Access",
+                "price": 15,
+                "pricingType": "per_person_per_night"
             },
             {
-                "id": "svc-transfer",
-                "name": "Airport Transfer (return)",
-                "price": 75,
-                "pricingType": "per_booking"
+                "id": "svc-excursion-shore",
+                "name": "Shore Excursion",
+                "price": 120,
+                "pricingType": "per_person"
             }
         ]
     },
@@ -60,28 +48,22 @@
         "description": "Dramatic scenery through Norway's most spectacular fjords.",
         "availableServices": [
             {
-                "id": "svc-drinks",
-                "name": "All-Inclusive Drinks Package",
-                "price": 149,
-                "pricingType": "per_person"
-            },
-            {
-                "id": "svc-excursion-fjord",
-                "name": "Fjord Kayaking Experience",
-                "price": 129,
-                "pricingType": "per_person"
-            },
-            {
                 "id": "svc-insurance",
                 "name": "Travel Insurance",
-                "price": 49,
+                "price": 80,
                 "pricingType": "per_person"
             },
             {
-                "id": "svc-transfer",
-                "name": "Airport Transfer (return)",
-                "price": 75,
-                "pricingType": "per_booking"
+                "id": "svc-wifi",
+                "name": "WiFi Access",
+                "price": 15,
+                "pricingType": "per_person_per_night"
+            },
+            {
+                "id": "svc-excursion-shore",
+                "name": "Shore Excursion",
+                "price": 120,
+                "pricingType": "per_person"
             }
         ]
     },
@@ -100,34 +82,22 @@
         "description": "Sun, sea and stunning Caribbean islands await you.",
         "availableServices": [
             {
-                "id": "svc-drinks",
-                "name": "All-Inclusive Drinks Package",
-                "price": 149,
-                "pricingType": "per_person"
-            },
-            {
-                "id": "svc-snorkel",
-                "name": "Snorkelling & Reef Tour",
-                "price": 99,
-                "pricingType": "per_person"
-            },
-            {
                 "id": "svc-insurance",
                 "name": "Travel Insurance",
-                "price": 49,
+                "price": 80,
                 "pricingType": "per_person"
             },
             {
-                "id": "svc-spa",
-                "name": "Spa Day Pass",
-                "price": 89,
-                "pricingType": "per_person"
+                "id": "svc-wifi",
+                "name": "WiFi Access",
+                "price": 15,
+                "pricingType": "per_person_per_night"
             },
             {
-                "id": "svc-transfer",
-                "name": "Airport Transfer (return)",
-                "price": 75,
-                "pricingType": "per_booking"
+                "id": "svc-excursion-shore",
+                "name": "Shore Excursion",
+                "price": 120,
+                "pricingType": "per_person"
             }
         ]
     },
@@ -146,28 +116,22 @@
         "description": "Witness glaciers, wildlife and unspoiled Alaskan wilderness.",
         "availableServices": [
             {
-                "id": "svc-drinks",
-                "name": "All-Inclusive Drinks Package",
-                "price": 149,
-                "pricingType": "per_person"
-            },
-            {
-                "id": "svc-wildlife",
-                "name": "Wildlife Watching Guided Tour",
-                "price": 159,
-                "pricingType": "per_person"
-            },
-            {
                 "id": "svc-insurance",
                 "name": "Travel Insurance",
-                "price": 49,
+                "price": 80,
                 "pricingType": "per_person"
             },
             {
-                "id": "svc-transfer",
-                "name": "Airport Transfer (return)",
-                "price": 75,
-                "pricingType": "per_booking"
+                "id": "svc-wifi",
+                "name": "WiFi Access",
+                "price": 15,
+                "pricingType": "per_person_per_night"
+            },
+            {
+                "id": "svc-excursion-shore",
+                "name": "Shore Excursion",
+                "price": 120,
+                "pricingType": "per_person"
             }
         ]
     },
@@ -186,34 +150,22 @@
         "description": "Luxury and culture blended across the stunning Arabian Gulf.",
         "availableServices": [
             {
-                "id": "svc-drinks",
-                "name": "All-Inclusive Drinks Package",
-                "price": 149,
-                "pricingType": "per_person"
-            },
-            {
-                "id": "svc-desert",
-                "name": "Desert Safari Experience",
-                "price": 175,
-                "pricingType": "per_person"
-            },
-            {
                 "id": "svc-insurance",
                 "name": "Travel Insurance",
-                "price": 49,
+                "price": 80,
                 "pricingType": "per_person"
             },
             {
-                "id": "svc-spa",
-                "name": "Spa Day Pass",
-                "price": 89,
-                "pricingType": "per_person"
+                "id": "svc-wifi",
+                "name": "WiFi Access",
+                "price": 15,
+                "pricingType": "per_person_per_night"
             },
             {
-                "id": "svc-transfer",
-                "name": "Airport Transfer (return)",
-                "price": 75,
-                "pricingType": "per_booking"
+                "id": "svc-excursion-shore",
+                "name": "Shore Excursion",
+                "price": 120,
+                "pricingType": "per_person"
             }
         ]
     }

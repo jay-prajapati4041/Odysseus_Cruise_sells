@@ -113,45 +113,49 @@ describe('Pricing Engine – calculatePrice()', () => {
                 children: [{ age: 4 }, { age: 7 }, { age: 14 }],
                 serviceIds: [],
             });
-            const expected = ADULT * 2 + 0 + CHILD_5_11 + CHILD_12_17;
-            expect(result.grandTotal).toBeCloseTo(expected, 2);
+            const expectedPaxTotal = ADULT * 2 + 0 + CHILD_5_11 + CHILD_12_17; // 4871.75
+            const expectedDiscount = Math.round(expectedPaxTotal * 0.10 * 100) / 100; // 487.18
+            expect(result.grandTotal).toBeCloseTo(expectedPaxTotal - expectedDiscount, 2);
         });
     });
 
     // ── Optional Services ──────────────────────────────────────────────────────
     describe('Optional Services', () => {
         test('per_person service × total travellers (adult + children)', () => {
-            // 2 adults + 1 child age 7 = 3 travellers, drinks £149×3 = £447
+            // 2 adults + 1 child = 3 travellers, insurance £80×3 = £240
             const result = calculatePrice({
                 cruiseId: 'cruise-001',
                 adults: 2,
                 children: [{ age: 7 }],
-                serviceIds: ['svc-drinks'],
+                serviceIds: ['svc-insurance'],
             });
-            const drinkLine = result.services.find((s) => s.id === 'svc-drinks');
-            expect(drinkLine.lineTotal).toBe(149 * 3);
+            const insuranceLine = result.services.find((s) => s.id === 'svc-insurance');
+            expect(insuranceLine.lineTotal).toBe(80 * 3);
         });
 
-        test('per_booking (flat) service is never multiplied by headcount', () => {
+        test('per_person_per_night service × travellers × nights', () => {
+            // cruise-001 is 14 nights. 5 travellers. wifi £15×5×14 = £1050
             const result = calculatePrice({
                 cruiseId: 'cruise-001',
                 adults: 5,
                 children: [],
-                serviceIds: ['svc-transfer'],
+                serviceIds: ['svc-wifi'],
             });
-            const transferLine = result.services.find((s) => s.id === 'svc-transfer');
-            expect(transferLine.lineTotal).toBe(75);
+            const wifiLine = result.services.find((s) => s.id === 'svc-wifi');
+            expect(wifiLine.lineTotal).toBe(15 * 5 * 14);
         });
 
         test('Multiple services combined correctly', () => {
-            // 2 adults: drinks(149×2=298) + transfer(75) = 373 + 2998 = 3371
+            // 2 adults: insurance(80×2=160) + wifi(15×2×14=420) = 580.
+            // pax total = 1499 * 2 = 2998.
+            // No group discount. Total = 2998 + 580 = 3578
             const result = calculatePrice({
                 cruiseId: 'cruise-001',
                 adults: 2,
                 children: [],
-                serviceIds: ['svc-drinks', 'svc-transfer'],
+                serviceIds: ['svc-insurance', 'svc-wifi'],
             });
-            expect(result.grandTotal).toBe(ADULT * 2 + 149 * 2 + 75);
+            expect(result.grandTotal).toBe(ADULT * 2 + 160 + 420);
         });
 
         test('Unknown service ID silently ignored', () => {
@@ -198,6 +202,38 @@ describe('Pricing Engine – calculatePrice()', () => {
         test('No promo → discount is null', () => {
             const result = calculatePrice({ cruiseId: 'cruise-001', adults: 1, children: [], serviceIds: [] });
             expect(result.discount).toBeNull();
+        });
+    });
+
+    // ── Group Discount ─────────────────────────────────────────────────────────
+    describe('Group Discount – based on total passengers', () => {
+        test('1-2 passengers → no group discount', () => {
+            const result = calculatePrice({ cruiseId: 'cruise-001', adults: 2, children: [], serviceIds: [] });
+            expect(result.groupDiscount).toBeNull();
+            expect(result.subtotal).toBe(ADULT * 2);
+        });
+
+        test('3-4 passengers → 5% group discount on passenger total', () => {
+            // 3 adults -> 3 * 1499 = 4497. 5% discount = 224.85
+            const result = calculatePrice({ cruiseId: 'cruise-001', adults: 3, children: [], serviceIds: [] });
+            expect(result.groupDiscount.pct).toBe(5);
+            expect(result.groupDiscount.amount).toBeCloseTo(-(ADULT * 3 * 0.05), 2);
+            expect(result.subtotal).toBe(ADULT * 3);
+            expect(result.grandTotal).toBeCloseTo(ADULT * 3 * 0.95, 2);
+        });
+
+        test('5-6 passengers → 10% group discount on passenger total', () => {
+            // 4 adults, 1 child (age 14 -> 75%) = 5 travellers
+            // passenger total = 4 * 1499 + 1124.25 = 7120.25
+            // discount = 712.03
+            const result = calculatePrice({
+                cruiseId: 'cruise-001',
+                adults: 4,
+                children: [{ age: 14 }],
+                serviceIds: []
+            });
+            expect(result.groupDiscount.pct).toBe(10);
+            expect(result.groupDiscount.amount).toBeCloseTo(-((ADULT * 4 + CHILD_12_17) * 0.10), 2);
         });
     });
 

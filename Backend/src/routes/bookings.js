@@ -13,46 +13,39 @@ const promoCodesData = require('../data/promoCodes.json');
 /**
  * POST /api/bookings/price
  * Calculate the price breakdown WITHOUT creating a booking.
- * Body: { cruiseId, adults, children: [{age}], serviceIds: [], promoCode?: string }
  */
 router.post('/price', (req, res) => {
-    const { cruiseId, adults, children = [], serviceIds = [], promoCode: promoCodeStr } = req.body;
+    const { cruiseId, adults, children = [], serviceIds = [], promoCode: promoCodeStr, email } = req.body;
 
     // ── Validation ─────────────────────────────────────────────────────────────
-    if (!cruiseId) {
-        return res.status(400).json({ success: false, error: 'cruiseId is required.' });
+    if (!cruiseId) return res.status(400).json({ success: false, error: 'cruiseId is required.' });
+    if (!adults || typeof adults !== 'number' || adults < 1) return res.status(400).json({ success: false, error: 'At least 1 adult is required.' });
+
+    // Calculate subtotal FIRST (without promo) to check minimum spend
+    let tempBreakdown;
+    try {
+        tempBreakdown = calculatePrice({ cruiseId, adults, children, serviceIds, promoCode: null });
+    } catch (err) {
+        return res.status(400).json({ success: false, error: err.message });
     }
-    if (!adults || typeof adults !== 'number' || adults < 1) {
-        return res.status(400).json({ success: false, error: 'At least 1 adult is required.' });
-    }
-    if (!Array.isArray(children)) {
-        return res.status(400).json({ success: false, error: 'children must be an array.' });
-    }
-    for (let i = 0; i < children.length; i++) {
-        if (typeof children[i].age !== 'number' || children[i].age < 0) {
-            return res.status(400).json({ success: false, error: `Child ${i + 1}: age must be a non-negative number.` });
-        }
-    }
+
+    const groupDisc = tempBreakdown.groupDiscount ? Math.abs(tempBreakdown.groupDiscount.amount) : 0;
+    const amountForPromo = tempBreakdown.subtotal - groupDisc;
 
     // ── Promo Code Validation ──────────────────────────────────────────────────
     let promoResult = null;
-    let promoValidation = null;
-
     if (promoCodeStr && promoCodeStr.trim() !== '') {
-        promoValidation = validatePromoCode(promoCodeStr, cruiseId);
+        const promoValidation = validatePromoCode(promoCodeStr, cruiseId, amountForPromo, email);
         if (!promoValidation.valid) {
             return res.status(422).json({
                 success: false,
-                promoError: {
-                    reason: promoValidation.reason,
-                    message: promoValidation.message,
-                },
+                promoError: { reason: promoValidation.reason, message: promoValidation.message },
             });
         }
         promoResult = promoValidation.promoDoc;
     }
 
-    // ── Pricing ────────────────────────────────────────────────────────────────
+    // ── Pricing with Valid Promo ───────────────────────────────────────────────
     try {
         const breakdown = calculatePrice({ cruiseId, adults, children, serviceIds, promoCode: promoResult });
         return res.json({ success: true, data: breakdown });
@@ -63,16 +56,27 @@ router.post('/price', (req, res) => {
 
 /**
  * POST /api/bookings/validate-promo
- * Validate a promo code for a cruise WITHOUT pricing.
- * Body: { cruiseId, promoCode }
+ * Validate a promo code for a cruise using live itinerary to test constraints.
  */
 router.post('/validate-promo', (req, res) => {
-    const { cruiseId, promoCode } = req.body;
+    const { cruiseId, adults, children = [], serviceIds = [], promoCode, email } = req.body;
+
     if (!cruiseId || !promoCode) {
         return res.status(400).json({ success: false, error: 'cruiseId and promoCode are required.' });
     }
 
-    const result = validatePromoCode(promoCode, cruiseId);
+    // Compute live subtotal
+    let tempBreakdown;
+    try {
+        tempBreakdown = calculatePrice({ cruiseId, adults, children, serviceIds, promoCode: null });
+    } catch (err) {
+        return res.status(400).json({ success: false, error: err.message });
+    }
+
+    const groupDisc = tempBreakdown.groupDiscount ? Math.abs(tempBreakdown.groupDiscount.amount) : 0;
+    const amountForPromo = tempBreakdown.subtotal - groupDisc;
+
+    const result = validatePromoCode(promoCode, cruiseId, amountForPromo, email);
 
     if (!result.valid) {
         return res.status(422).json({
@@ -84,43 +88,42 @@ router.post('/validate-promo', (req, res) => {
     return res.json({
         success: true,
         message: `Code "${promoCode}" is valid!`,
-        discount: {
-            type: result.promoDoc.type,
-            value: result.promoDoc.value,
-            description: result.promoDoc.description,
-        },
+        discount: { type: result.promoDoc.type, value: result.promoDoc.value, description: result.promoDoc.description },
     });
 });
 
 /**
  * POST /api/bookings
  * Confirm and create a booking.
- * Body: { cruiseId, adults, children: [{age}], serviceIds: [], promoCode?: string,
- *         leadPassenger: { firstName, lastName, email } }
  */
 router.post('/', (req, res) => {
     const {
-        cruiseId,
-        adults,
-        children = [],
-        serviceIds = [],
-        promoCode: promoCodeStr,
-        leadPassenger,
+        cruiseId, adults, children = [], serviceIds = [], promoCode: promoCodeStr, leadPassenger
     } = req.body;
 
     // ── Validation ─────────────────────────────────────────────────────────────
     if (!cruiseId) return res.status(400).json({ success: false, error: 'cruiseId is required.' });
-    if (!adults || typeof adults !== 'number' || adults < 1) {
-        return res.status(400).json({ success: false, error: 'At least 1 adult is required.' });
-    }
+    if (!adults || typeof adults !== 'number' || adults < 1) return res.status(400).json({ success: false, error: 'At least 1 adult is required.' });
     if (!leadPassenger?.firstName || !leadPassenger?.lastName || !leadPassenger?.email) {
         return res.status(400).json({ success: false, error: 'leadPassenger firstName, lastName, and email are required.' });
     }
 
+    const email = leadPassenger.email.toLowerCase().trim();
+
+    // ── Price w/o promo to calc subtotal ───────────────────────────────────────
+    let tempBreakdown;
+    try {
+        tempBreakdown = calculatePrice({ cruiseId, adults, children, serviceIds, promoCode: null });
+    } catch (err) {
+        return res.status(400).json({ success: false, error: err.message });
+    }
+    const groupDisc = tempBreakdown.groupDiscount ? Math.abs(tempBreakdown.groupDiscount.amount) : 0;
+    const amountForPromo = tempBreakdown.subtotal - groupDisc;
+
     // ── Promo ──────────────────────────────────────────────────────────────────
     let promoDoc = null;
     if (promoCodeStr && promoCodeStr.trim() !== '') {
-        const promoValidation = validatePromoCode(promoCodeStr, cruiseId);
+        const promoValidation = validatePromoCode(promoCodeStr, cruiseId, amountForPromo, email);
         if (!promoValidation.valid) {
             return res.status(422).json({
                 success: false,
@@ -138,10 +141,14 @@ router.post('/', (req, res) => {
         return res.status(400).json({ success: false, error: err.message });
     }
 
-    // ── Increment promo usedCount ──────────────────────────────────────────────
+    // ── Increment promo usages ─────────────────────────────────────────────────
     if (promoDoc) {
         const promoEntry = promoCodesData.find((p) => p.code === promoDoc.code);
-        if (promoEntry) promoEntry.usedCount += 1;
+        if (promoEntry) {
+            promoEntry.usedCount += 1;
+            promoEntry.customerUsages = promoEntry.customerUsages || {};
+            promoEntry.customerUsages[email] = (promoEntry.customerUsages[email] || 0) + 1;
+        }
     }
 
     // ── Create Booking ─────────────────────────────────────────────────────────

@@ -94,6 +94,26 @@ function calculatePrice({ cruiseId, adults, children = [], serviceIds = [], prom
     // ── Total travellers (used for per_person services) ─────────────────────────
     const totalTravellers = adults + children.length;
 
+    // ── Group Discount ──────────────────────────────────────────────────────────
+    let groupDiscountAmount = 0;
+    if (totalTravellers >= 5) {
+        groupDiscountAmount = Math.round((passengerTotal * 0.10) * 100) / 100;
+        breakdown.groupDiscount = {
+            description: '10% Group Discount (5–6 pax)',
+            pct: 10,
+            amount: -groupDiscountAmount
+        };
+    } else if (totalTravellers >= 3) {
+        groupDiscountAmount = Math.round((passengerTotal * 0.05) * 100) / 100;
+        breakdown.groupDiscount = {
+            description: '5% Group Discount (3–4 pax)',
+            pct: 5,
+            amount: -groupDiscountAmount
+        };
+    } else {
+        breakdown.groupDiscount = null;
+    }
+
     // ── Optional Services ───────────────────────────────────────────────────────
     let servicesTotal = 0;
 
@@ -108,6 +128,9 @@ function calculatePrice({ cruiseId, adults, children = [], serviceIds = [], prom
             if (svc.pricingType === 'per_person') {
                 lineTotal = svc.price * totalTravellers;
                 pricingNote = `£${svc.price} × ${totalTravellers} travellers`;
+            } else if (svc.pricingType === 'per_person_per_night') {
+                lineTotal = svc.price * totalTravellers * cruise.durationNights;
+                pricingNote = `£${svc.price} × ${totalTravellers} travellers × ${cruise.durationNights} nights`;
             } else {
                 // per_booking
                 lineTotal = svc.price;
@@ -131,16 +154,20 @@ function calculatePrice({ cruiseId, adults, children = [], serviceIds = [], prom
     // ── Promotional Discount ────────────────────────────────────────────────────
     let discountAmount = 0;
 
+    // Promo applies to passengerTotal after group discount, plus services? 
+    // Wait, let's keep it simple: apply promo code discount directly to subtotal minus group discount.
+    const amountForPromo = subtotal - groupDiscountAmount;
+
     if (promoCode) {
         if (promoCode.type === 'percent') {
-            discountAmount = Math.round((subtotal * promoCode.value) / 100 * 100) / 100;
+            discountAmount = Math.round((amountForPromo * promoCode.value) / 100 * 100) / 100;
             breakdown.discount = {
                 code: promoCode.code,
                 description: `${promoCode.value}% off`,
                 amount: -discountAmount,
             };
         } else if (promoCode.type === 'fixed') {
-            discountAmount = Math.min(promoCode.value, subtotal); // can't go negative
+            discountAmount = Math.min(promoCode.value, amountForPromo); // can't go negative
             breakdown.discount = {
                 code: promoCode.code,
                 description: `£${promoCode.value} off`,
@@ -149,7 +176,7 @@ function calculatePrice({ cruiseId, adults, children = [], serviceIds = [], prom
         }
     }
 
-    breakdown.grandTotal = Math.max(0, subtotal - discountAmount);
+    breakdown.grandTotal = Math.max(0, subtotal - groupDiscountAmount - discountAmount);
 
     return breakdown;
 }

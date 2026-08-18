@@ -1,12 +1,16 @@
 [
     {
         "code": "SUMMER20",
-        "description": "20% off summer cruises",
+        "description": "20% off summer cruises (Min Spend £500)",
         "type": "percent",
         "value": 20,
-        "expiresAt": "2026-09-01",
-        "maxUses": 100,
+        "validFrom": "2026-05-01",
+        "validTo": "2026-09-01",
+        "maxTotalUses": 100,
         "usedCount": 0,
+        "maxUsesPerCustomer": 1,
+        "customerUsages": {},
+        "minimumSpend": 500,
         "applicableCruiseIds": [
             "cruise-001",
             "cruise-002",
@@ -15,12 +19,16 @@
     },
     {
         "code": "SAVE100",
-        "description": "£100 off any cruise",
+        "description": "£100 off any cruise (Min Spend £1000)",
         "type": "fixed",
         "value": 100,
-        "expiresAt": "2026-12-31",
-        "maxUses": 500,
+        "validFrom": "2026-01-01",
+        "validTo": "2026-12-31",
+        "maxTotalUses": 500,
         "usedCount": 0,
+        "maxUsesPerCustomer": 2,
+        "customerUsages": {},
+        "minimumSpend": 1000,
         "applicableCruiseIds": null
     },
     {
@@ -28,9 +36,27 @@
         "description": "50% off – expired promotion",
         "type": "percent",
         "value": 50,
-        "expiresAt": "2025-01-01",
-        "maxUses": 1000,
+        "validFrom": "2024-01-01",
+        "validTo": "2025-01-01",
+        "maxTotalUses": 1000,
         "usedCount": 0,
+        "maxUsesPerCustomer": 1,
+        "customerUsages": {},
+        "minimumSpend": 0,
+        "applicableCruiseIds": null
+    },
+    {
+        "code": "FUTURE20",
+        "description": "20% off – starts in future",
+        "type": "percent",
+        "value": 20,
+        "validFrom": "2027-01-01",
+        "validTo": "2027-12-31",
+        "maxTotalUses": 1000,
+        "usedCount": 0,
+        "maxUsesPerCustomer": 1,
+        "customerUsages": {},
+        "minimumSpend": 0,
         "applicableCruiseIds": null
     },
     {
@@ -38,33 +64,29 @@
         "description": "£999 off – fully exhausted",
         "type": "fixed",
         "value": 999,
-        "expiresAt": "2026-12-31",
-        "maxUses": 50,
+        "validFrom": "2026-01-01",
+        "validTo": "2026-12-31",
+        "maxTotalUses": 50,
         "usedCount": 50,
+        "maxUsesPerCustomer": 1,
+        "customerUsages": {},
+        "minimumSpend": 0,
         "applicableCruiseIds": null
     },
     {
-        "code": "GULF25",
-        "description": "25% off Arabian Gulf cruise only",
-        "type": "percent",
-        "value": 25,
-        "expiresAt": "2026-11-01",
-        "maxUses": 30,
-        "usedCount": 5,
-        "applicableCruiseIds": [
-            "cruise-005"
-        ]
-    },
-    {
-        "code": "ARCTIC10",
-        "description": "£10 off Alaska voyage",
+        "code": "TESTUSER",
+        "description": "£500 off – user already hit limit",
         "type": "fixed",
-        "value": 10,
-        "expiresAt": "2026-09-30",
-        "maxUses": 20,
-        "usedCount": 0,
-        "applicableCruiseIds": [
-            "cruise-004"
-        ]
+        "value": 500,
+        "validFrom": "2026-01-01",
+        "validTo": "2026-12-31",
+        "maxTotalUses": 1000,
+        "usedCount": 1,
+        "maxUsesPerCustomer": 1,
+        "customerUsages": {
+            "test@odysseuscruises.com": 1
+        },
+        "minimumSpend": 0,
+        "applicableCruiseIds": null
     }
 ]
